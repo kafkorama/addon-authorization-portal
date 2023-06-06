@@ -1,4 +1,4 @@
-# Authorization JWT add-on
+# Authorization HUB add-on
 
 This MigratoryData add-on allows you to authorize users to subscribe to and/or publish real-time messages on specific
 subjects using the JSON Web Tokens (JWT) standard.
@@ -25,7 +25,9 @@ Its default configuration is available under the following folder:
 | `/etc/migratorydata/addons/authorization-hub` | `RPM` or `DEB` Linux package         |
 
 The add-on is automatically enabled the parameter 
-[Entitlement](http://localhost:1313/docs/migratorydata/configuration/core-parameters/#entitlement) of the MigratoryData server is set on `JWT`.
+[Entitlement](http://localhost:1313/docs/migratorydata/configuration/core-parameters/#entitlement) of the MigratoryData server is set on `HUB`.
+
+> Entitlement = HUB
 
 ### Modifying the add-on
 
@@ -51,11 +53,13 @@ $ ./gradlew clean build shadowJar
 | `/usr/share/migratorydata/extensions/`  | `RPM` or `DEB` Linux package         |
 
 > **Note &mdash;**
-> It is not necessary to delete the JWT authorization add-on `authorization.jar` made available under the folder `addons`. Loading a custom authorization extension
+> It is not necessary to delete the HUB authorization add-on `authorization.jar` made available under the folder `addons`. Loading a custom authorization extension
 > `authorization.jar` from the folder `extensions` takes precedence over loading an off-the-shelf authorization extension `authorization.jar` made available under
 > the folder `addons`. Note also that the name of the extension `authorization.jar` is fixed, it cannot be changed in order to be loaded by the MigratoryData server.
 
-2. Set the parameter [Entitlement](http://localhost:1313/docs/migratorydata/configuration/core-parameters/#entitlement) of the MigratoryData server on `Custom` (rather than on `JWT`)
+2. Set the parameter [Entitlement](http://localhost:1313/docs/migratorydata/configuration/core-parameters/#entitlement) of the MigratoryData server on `Custom` (rather than on `HUB`)
+
+> Entitlement = Custom
 
 3. Finally, restart your MigratoryData server in order to reload the authorization add-on.
 
