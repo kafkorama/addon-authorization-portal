@@ -1,0 +1,47 @@
+// Apply the java plugin to add support for Java
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use 'jcenter' for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+}
+
+shadowJar {
+    archiveBaseName.set('authorization')
+    archiveClassifier.set('')
+    archiveVersion.set('')
+
+    mergeServiceFiles {
+        include 'META-INF/services/*'
+    }
+
+    relocate 'com.fasterxml', 'm.authorization.fasterxml'
+    relocate 'io.jsonwebtoken', 'm.authorization.jsonwebtoken'
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+
+    compileOnly files('libs/server-extensions-api-6.0.0.jar')
+
+    //compileOnly group: 'com.migratorydata', name: 'server-extensions-api', version: '6.0.0'
+
+    implementation group: 'com.migratorydata', name: 'client-java-api', version: '6.0.0'
+
+    implementation group: 'org.json', name: 'json', version: '20230227'
+
+    implementation 'com.google.guava:guava:31.0.1-jre'
+
+    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
+    testImplementation group: 'com.migratorydata', name: 'server-extensions-api', version: '6.0.0'
+    testImplementation 'junit:junit:4.13'
+}
