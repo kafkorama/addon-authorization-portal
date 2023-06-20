@@ -22,50 +22,85 @@ public class SubjectPermission {
     }
 
     public void setPermission(String subject, Permissions.Permission permission) {
-        createPermission(subject.substring(1), permission);
+        addPermission(subject.substring(1), permission, Permissions.Permission.NONE);
     }
 
     public Permissions.Permission getPermission(String subject) {
-        SubjectPermission permission = findPermission(subject.substring(1));
+        SubjectPermission permission = findPermission(subject.substring(1), Permissions.Permission.NONE);
         if (permission == null) {
             return Permissions.Permission.NONE;
         }
         return permission.permission;
     }
 
-    private SubjectPermission createPermission(String subject, Permissions.Permission permission) {
-        int i = subject.indexOf("/");
+    private SubjectPermission addPermission(String pattern, Permissions.Permission permission, Permissions.Permission wildcardPermission) {
+        if (pattern == null) {
+            this.update(SegmentType.SUBJECT, permission);
+            return this;
+        }
+
+        int i = pattern.indexOf("/");
         String segment;
         if (i != -1) {
-            segment = subject.substring(0, i);
-            subject = subject.substring(i + 1);
+            segment = pattern.substring(0, i);
+            pattern = pattern.substring(i + 1);
         } else {
-            segment = subject;
-            subject = null;
+            segment = pattern;
+            pattern = null;
         }
-        if (segment.equals("*") || segment.matches("^\\{\\w+}$")) {
-            segment = "*";
-            descendants.clear();
 
-            SubjectPermission subjectPermission = new SubjectPermission(getName() + "/" + segment, permission, SegmentType.WILDCARD);
+        if (this.segmentType == SegmentType.WILDCARD) {
+            wildcardPermission = this.permission;
+        }
+
+        if (segment.equals("*")) {
+
+            SubjectPermission subjectPermission = new SubjectPermission(segment, permission, SegmentType.WILDCARD);
             this.update(SegmentType.WILDCARD, permission);
             descendants.put(segment, subjectPermission);
 
+            this.updateForWildcard(permission);
+
             return subjectPermission;
-        }
-        SubjectPermission subjectPermission = descendants.get(segment);
-        if (subjectPermission == null) {
-            if (this.segmentType == SegmentType.WILDCARD) {
-                return this;
+        } else if (segment.matches("^\\{\\w+}$")) {
+            segment = "{s}";
+
+            SubjectPermission subjectPermission = descendants.get(segment);
+            if (subjectPermission == null) {
+                if (pattern == null) {
+                    subjectPermission = new SubjectPermission(segment, permission, SegmentType.SYMBOL);
+                } else {
+                    subjectPermission = new SubjectPermission(segment, wildcardPermission, SegmentType.SYMBOL);
+                }
+                descendants.put(segment, subjectPermission);
             }
-            subjectPermission = new SubjectPermission(getName() + "/" + segment);
-            descendants.put(segment, subjectPermission);
-        }
-        if (subject == null) {
-            subjectPermission.update(SegmentType.SUBJECT, permission);
+
+            if (pattern != null) {
+                return subjectPermission.addPermission(pattern, permission, wildcardPermission);
+            }
             return subjectPermission;
+        } else {
+            SubjectPermission subjectPermission = descendants.get(segment);
+            if (subjectPermission == null) {
+                if (pattern == null) {
+                    subjectPermission = new SubjectPermission(segment, permission, SegmentType.SUBJECT);
+                } else {
+                    subjectPermission = new SubjectPermission(segment, wildcardPermission, SegmentType.NONE);
+                }
+                descendants.put(segment, subjectPermission);
+            }
+
+            return subjectPermission.addPermission(pattern, permission, wildcardPermission);
         }
-        return subjectPermission.createPermission(subject, permission);
+    }
+
+    private void updateForWildcard(Permissions.Permission wildCardPermission) {
+        for (Map.Entry<String, SubjectPermission> entry : descendants.entrySet()) {
+            if (entry.getValue().segmentType != SegmentType.SUBJECT && entry.getValue().permission == Permissions.Permission.NONE) {
+                entry.getValue().permission = wildCardPermission;
+            }
+            entry.getValue().updateForWildcard(wildCardPermission);
+        }
     }
 
     private void update(SegmentType segmentType, Permissions.Permission permission) {
@@ -73,7 +108,12 @@ public class SubjectPermission {
         this.permission = permission;
     }
 
-    private SubjectPermission findPermission(String subject) {
+    private SubjectPermission findPermission(String subject, Permissions.Permission wildcardPermission) {
+
+        if (subject == null) {
+            return this;
+        }
+
         int i = subject.indexOf("/");
         String segment;
         if (i != -1) {
@@ -84,26 +124,36 @@ public class SubjectPermission {
             subject = null;
         }
 
+        if (this.segmentType == SegmentType.WILDCARD) {
+            wildcardPermission = this.permission;
+        }
+
         SubjectPermission subjectPermission = descendants.get(segment);
         if (subjectPermission == null) {
-            return descendants.get("*");
-        }
-        if (subject == null) {
-            if (subjectPermission.segmentType == SegmentType.SUBJECT) {
-                return subjectPermission;
-            } else {
-                return null;
+            if (descendants.containsKey("{s}")) {
+                return descendants.get("{s}").findPermission(subject, wildcardPermission);
+            }
+            if (descendants.containsKey("*")) {
+                return descendants.get("*");
             }
 
+            return new SubjectPermission(segment, wildcardPermission, SegmentType.WILDCARD);
         }
-        return subjectPermission.findPermission(subject);
+
+        return subjectPermission.findPermission(subject, wildcardPermission);
     }
 
-    private String getName() {
-        return this.name;
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(name).append(":").append(permission).append(":").append(segmentType).append("\n");
+        for(Map.Entry<String, SubjectPermission> entry : descendants.entrySet()) {
+            builder.append(entry.getValue()).append("\n");
+        }
+
+        return builder.toString();
     }
 
     enum SegmentType {
-        NONE, WILDCARD, SUBJECT
+        NONE, WILDCARD, SYMBOL, SUBJECT
     }
 }
