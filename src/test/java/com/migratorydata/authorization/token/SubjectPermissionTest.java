@@ -2,6 +2,7 @@ package com.migratorydata.authorization.token;
 
 import com.migratorydata.authorization.common.token.Permissions;
 import com.migratorydata.authorization.common.token.SubjectPermission;
+import static com.migratorydata.authorization.common.token.SubjectPermission.SYMBOL_REGEX;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -233,7 +234,7 @@ public class SubjectPermissionTest {
 
     @Test
     public void test_symbol_last() {
-        root.setPermission("/a/b/{s}", Permissions.Permission.PUB);
+        root.setPermission("/a/b/(s)", Permissions.Permission.PUB);
 
         Permissions.Permission permission = root.getPermission("/a/b");
         Assert.assertTrue(permission == Permissions.Permission.NONE );
@@ -247,7 +248,7 @@ public class SubjectPermissionTest {
 
     @Test
     public void test_symbol_middle() {
-        root.setPermission("/a/{s}/b", Permissions.Permission.PUB);
+        root.setPermission("/a/(s)/b", Permissions.Permission.PUB);
         root.setPermission("/a/c/b", Permissions.Permission.SUB);
         root.setPermission("/a/c/d", Permissions.Permission.ALL);
 
@@ -272,8 +273,8 @@ public class SubjectPermissionTest {
 
     @Test
     public void test_multiple_symbols_middle() {
-        root.setPermission("/a/{s}/b", Permissions.Permission.ALL);
-        root.setPermission("/a/{s}/{s}/b", Permissions.Permission.SUB);
+        root.setPermission("/a/(s)/b", Permissions.Permission.ALL);
+        root.setPermission("/a/(s)/(s)/b", Permissions.Permission.SUB);
         root.setPermission("/a/c/b", Permissions.Permission.PUB);
         root.setPermission("/a/c/d", Permissions.Permission.PUB);
 
@@ -306,9 +307,9 @@ public class SubjectPermissionTest {
 
     @Test
     public void test_multiple_symbols_middle_wildcard() {
-        root.setPermission("/a/{s}/b/{s}", Permissions.Permission.PUB);
-        root.setPermission("/a/{s}/b", Permissions.Permission.ALL);
-        root.setPermission("/a/{s}/{s}/b", Permissions.Permission.SUB);
+        root.setPermission("/a/(s)/b/(s)", Permissions.Permission.PUB);
+        root.setPermission("/a/(s)/b", Permissions.Permission.ALL);
+        root.setPermission("/a/(s)/(s)/b", Permissions.Permission.SUB);
         root.setPermission("/a/c/b", Permissions.Permission.PUB);
         root.setPermission("/a/c/d", Permissions.Permission.PUB);
         root.setPermission("/a/*", Permissions.Permission.SUB);
@@ -343,9 +344,9 @@ public class SubjectPermissionTest {
         root.setPermission("/a/*", Permissions.Permission.SUB);
         root.setPermission("/a/c/d", Permissions.Permission.PUB);
         root.setPermission("/a/c/b", Permissions.Permission.PUB);
-        root.setPermission("/a/{s}/{s}/b", Permissions.Permission.SUB);
-        root.setPermission("/a/{s}/b", Permissions.Permission.ALL);
-        root.setPermission("/a/{s}/b/{s}", Permissions.Permission.PUB);
+        root.setPermission("/a/(s)/(s)/b", Permissions.Permission.SUB);
+        root.setPermission("/a/(s)/b", Permissions.Permission.ALL);
+        root.setPermission("/a/(s)/b/(s)", Permissions.Permission.PUB);
 
         System.out.println(root);
 
@@ -370,5 +371,11 @@ public class SubjectPermissionTest {
         permission = root.getPermission("/a/x/b/y");
         Assert.assertTrue(permission == Permissions.Permission.PUB );
 
+    }
+
+    @Test
+    public void testSymbolRegex() {
+        Assert.assertTrue("(a)".matches(SYMBOL_REGEX));
+        Assert.assertFalse("(a".matches(SYMBOL_REGEX));
     }
 }

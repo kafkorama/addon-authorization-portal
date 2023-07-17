@@ -5,6 +5,9 @@ import java.util.Map;
 
 public class SubjectPermission {
 
+    public static final String SYMBOL_REGEX = "^\\(\\w+\\)$";
+    public static final String SYMBOL = "(s)";
+
     private final Map<String, SubjectPermission> descendants = new HashMap<>();
     private final String name;
 
@@ -62,8 +65,8 @@ public class SubjectPermission {
             this.updateForWildcard(permission);
 
             return subjectPermission;
-        } else if (segment.matches("^\\{\\w+}$")) {
-            segment = "{s}";
+        } else if (segment.matches(SYMBOL_REGEX)) {
+            segment = SYMBOL;
 
             SubjectPermission subjectPermission = descendants.get(segment);
             if (subjectPermission == null) {
@@ -130,8 +133,8 @@ public class SubjectPermission {
 
         SubjectPermission subjectPermission = descendants.get(segment);
         if (subjectPermission == null) {
-            if (descendants.containsKey("{s}")) {
-                return descendants.get("{s}").findPermission(subject, wildcardPermission);
+            if (descendants.containsKey(SYMBOL)) {
+                return descendants.get(SYMBOL).findPermission(subject, wildcardPermission);
             }
             if (descendants.containsKey("*")) {
                 return descendants.get("*");
