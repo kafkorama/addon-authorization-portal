@@ -27,11 +27,9 @@ shadowJar {
 // In this section you declare the dependencies for your production and test code
 dependencies {
 
-    compileOnly files('libs/server-extensions-api-6.0.0.jar')
+    compileOnly group: 'com.migratorydata', name: 'server-extensions-api', version: '6.0.1'
 
-    //compileOnly group: 'com.migratorydata', name: 'server-extensions-api', version: '6.0.0'
-
-    implementation group: 'com.migratorydata', name: 'client-java-api', version: '6.0.0'
+    implementation group: 'com.migratorydata', name: 'client-java-api', version: '6.0.8'
 
     implementation group: 'org.json', name: 'json', version: '20230227'
 
@@ -42,6 +40,6 @@ dependencies {
     implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
-    testImplementation group: 'com.migratorydata', name: 'server-extensions-api', version: '6.0.0'
+    testImplementation group: 'com.migratorydata', name: 'server-extensions-api', version: '6.0.1'
     testImplementation 'junit:junit:4.13'
 }
