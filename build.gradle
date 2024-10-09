@@ -31,14 +31,14 @@ dependencies {
 
     implementation group: 'com.migratorydata', name: 'client-java-api', version: '6.0.8'
 
-    implementation group: 'org.json', name: 'json', version: '20230227'
+    implementation group: 'org.json', name: 'json', version: '20240303'
 
-    implementation 'com.google.guava:guava:31.0.1-jre'
+    implementation 'com.google.guava:guava:33.3.1-jre'
 
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
-    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
-    implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
-    implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.6'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.6'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
 
     testImplementation group: 'com.migratorydata', name: 'server-extensions-api', version: '6.0.1'
     testImplementation 'junit:junit:4.13'

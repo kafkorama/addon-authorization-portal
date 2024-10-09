@@ -35,11 +35,11 @@ public class Configuration {
 
         if ("hmac".equals(getSignatureType())) {
             secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(getHMACSecretKey()));
-            jwtVerifyParser = Jwts.parserBuilder().setSigningKey(secretKey).build();
+            jwtVerifyParser = Jwts.parser().setSigningKey(secretKey).build();
         } else if ("rsa".equals(getSignatureType())){
             try {
                 secretKey = getRSAPublicKey();
-                jwtVerifyParser = Jwts.parserBuilder().setSigningKey(secretKey).build();
+                jwtVerifyParser = Jwts.parser().setSigningKey(secretKey).build();
             } catch (Exception e) {
                 e.printStackTrace();
             }

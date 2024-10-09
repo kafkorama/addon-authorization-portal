@@ -19,7 +19,7 @@ public class SessionOrderTest {
     public static String secretKey = "He39zDQW7RdkOcxe3L9qvoSQ/ef40BG6Ro4hrHDjE+U=";
 
     public static Key signKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
-    public static JwtParser jwtVerifyParser = Jwts.parserBuilder().setSigningKey(signKey).build();
+    public static JwtParser jwtVerifyParser = Jwts.parser().setSigningKey(signKey).build();
 
     @Test
     public void test_expiration_date_order_comparator_reverse() {
