@@ -76,15 +76,6 @@ public class Configuration {
             props.put(SIGNATURE_RSA_PUBLIC_KEY_PATH, System.getProperty(SIGNATURE_RSA_PUBLIC_KEY_PATH));
         }
 
-        if (System.getProperties().containsKey("cluster.internal.servers")) {
-            props.put("cluster.internal.servers", System.getProperty("cluster.internal.servers"));
-        }
-        if (System.getProperties().containsKey("admin.api_segment")) {
-            props.put("admin.api_segment", System.getProperty("admin.api_segment"));
-        }
-        if (System.getProperties().containsKey("admin.user_segment")) {
-            props.put("admin.user_segment", System.getProperty("admin.user_segment"));
-        }
         if (System.getProperties().containsKey("web.url")) {
             props.put("web.url", System.getProperty("web.url"));
         }
@@ -93,26 +84,6 @@ public class Configuration {
         }
 
         return props;
-    }
-
-    public String getClusterInternalServers() {
-        return properties.getProperty("cluster.internal.servers");
-    }
-
-    public String getApiSegment() {
-        return properties.getProperty("admin.api_segment");
-    }
-
-    public String getAdminUserSegment() {
-        return properties.getProperty("admin.user_segment");
-    }
-
-    public String getClusterServerId() {
-        if (System.getProperty("com.migratorydata.extensions.authorization.index") != null) {
-            return System.getProperty("com.migratorydata.extensions.authorization.index");
-        } else {
-            return "1";
-        }
     }
 
     private static Properties readPropertiesFile(String fileName) {
@@ -158,10 +129,6 @@ public class Configuration {
         return keyFactory.generatePublic(new X509EncodedKeySpec(encoded));
     }
 
-    public String getSubjectStats() {
-        return "/" + getAdminUserSegment() + "/" + getApiSegment() + "/stats";
-    }
-
     public String getWebUrl() {
         return properties.getProperty("web.url", "http://127.0.0.1:8080");
     }
@@ -172,9 +139,5 @@ public class Configuration {
 
     public String getUrlRevokedTokens() {
         return getWebUrl() + "/internal/revoked_tokens/" + getWebGetPassword();
-    }
-
-    public String getUrlApiLimits() {
-        return getWebUrl() + "/internal/api_limits/" + getWebGetPassword();
     }
 }

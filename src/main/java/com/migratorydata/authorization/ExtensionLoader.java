@@ -2,10 +2,6 @@ package com.migratorydata.authorization;
 
 import com.migratorydata.authorization.common.config.Configuration;
 import com.migratorydata.authorization.hub.HubAuthorizationHandler;
-import com.migratorydata.authorization.hub.PushConsumerListener;
-import com.migratorydata.authorization.hub.common.CommonUtils;
-import com.migratorydata.authorization.hub.common.Consumer;
-import com.migratorydata.authorization.hub.common.Producer;
 import com.migratorydata.extensions.authorization.v2.MigratoryDataAuthorizationListener;
 import com.migratorydata.extensions.authorization.v2.client.*;
 
@@ -13,26 +9,10 @@ public class ExtensionLoader implements MigratoryDataAuthorizationListener {
 
     private final MigratoryDataAuthorizationListener authorizationListener;
 
-    private Consumer consumer;
-    private Producer producer;
-
     public ExtensionLoader() {
-        int numberOfClusterMembers = System.getProperty("com.migratorydata.extensions.authorization.clusterMembers", "1").split(",").length;
-
         Configuration conf = Configuration.getConfiguration();
 
-        String jws = CommonUtils.generateToken(conf.getApiSegment(),
-                CommonUtils.createAllPermissions("/" + conf.getAdminUserSegment() + "/" + conf.getApiSegment() + "/*"),
-                conf.getSecretKey());
-
-        producer = new Producer(conf.getClusterInternalServers(), jws);
-
-        authorizationListener = new HubAuthorizationHandler(producer, conf.getSubjectStats(), conf.getClusterServerId(),
-                conf.getMillisBeforeRenewal(), conf.getJwtVerifyParser(), conf.getUrlRevokedTokens(), conf.getUrlApiLimits(),
-                numberOfClusterMembers);
-
-        consumer = new Consumer(conf.getClusterInternalServers(), jws, conf.getSubjectStats(), new PushConsumerListener((HubAuthorizationHandler) authorizationListener));
-        consumer.begin();
+        authorizationListener = new HubAuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtVerifyParser(), conf.getUrlRevokedTokens());
     }
 
     @Override
@@ -68,8 +48,5 @@ public class ExtensionLoader implements MigratoryDataAuthorizationListener {
     @Override
     public void onDispose() {
         authorizationListener.onDispose();
-        if (consumer != null) {
-            consumer.end();
-        }
     }
 }
