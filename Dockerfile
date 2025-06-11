@@ -3,7 +3,7 @@ COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN gradle build shadowJar
 
-FROM migratorydata/server:6.0.21
-WORKDIR /migratorydata
-COPY --from=build-extension /home/gradle/src/build/libs/authorization.jar ./addons/authorization-hub/authorization.jar
-CMD ["./start-migratorydata.sh"]
+FROM kafkorama/gateway:6.0.22
+WORKDIR /kafkorama-gateway
+COPY --from=build-extension /home/gradle/src/build/libs/authorization.jar ./addons/authorization-portal/authorization.jar
+CMD ["./start-kafkorama-gateway.sh"]

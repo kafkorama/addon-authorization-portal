@@ -56,9 +56,9 @@ public class Configuration {
     }
 
     private static Properties loadConfiguration() {
-        Properties props = readPropertiesFile("./addons/authorization-hub/configuration.properties");
+        Properties props = readPropertiesFile("./addons/authorization-portal/configuration.properties");
         if (props == null) {
-            props = readPropertiesFile("/etc/migratorydata/addons/authorization-hub/configuration.properties");
+            props = readPropertiesFile("/etc/kafkorama-gateway/addons/authorization-portal/configuration.properties");
         }
         if (props == null) {
             props = new Properties();
@@ -76,11 +76,11 @@ public class Configuration {
             props.put(SIGNATURE_RSA_PUBLIC_KEY_PATH, System.getProperty(SIGNATURE_RSA_PUBLIC_KEY_PATH));
         }
 
-        if (System.getProperties().containsKey("web.url")) {
-            props.put("web.url", System.getProperty("web.url"));
+        if (System.getProperties().containsKey("portal.url")) {
+            props.put("portal.url", System.getProperty("portal.url"));
         }
-        if (System.getProperties().containsKey("web.password")) {
-            props.put("web.password", System.getProperty("web.password"));
+        if (System.getProperties().containsKey("portal.password")) {
+            props.put("portal.password", System.getProperty("portal.password"));
         }
 
         return props;
@@ -130,11 +130,11 @@ public class Configuration {
     }
 
     public String getWebUrl() {
-        return properties.getProperty("web.url", "http://127.0.0.1:8080");
+        return properties.getProperty("portal.url", "http://127.0.0.1:8080");
     }
 
     public String getWebGetPassword() {
-        return properties.getProperty("web.password", "my-password");
+        return properties.getProperty("portal.password", "my-password");
     }
 
     public String getUrlRevokedTokens() {
