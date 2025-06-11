@@ -25,6 +25,10 @@ public class Configuration {
     public static final String SIGNATURE_HMAC_SECRET = "signature.hmac.secret";
     public static final String SIGNATURE_RSA_PUBLIC_KEY_PATH = "signature.rsa.publicKeyPath";
 
+    public static final String PORTAL_URL = "portal.url";
+    public static final String PORTAL_PASSWORD = "portal.password";
+    public static final String PORTAL_REVOKED_TOKENS_PATH = "internal/revoked_tokens";
+
     private final Properties properties;
 
     private JwtParser jwtVerifyParser;
@@ -76,11 +80,12 @@ public class Configuration {
             props.put(SIGNATURE_RSA_PUBLIC_KEY_PATH, System.getProperty(SIGNATURE_RSA_PUBLIC_KEY_PATH));
         }
 
-        if (System.getProperties().containsKey("portal.url")) {
-            props.put("portal.url", System.getProperty("portal.url"));
+        // access url and password to portal for revoked jwt tokens api.
+        if (System.getProperties().containsKey(PORTAL_URL)) {
+            props.put(PORTAL_URL, System.getProperty(PORTAL_URL));
         }
-        if (System.getProperties().containsKey("portal.password")) {
-            props.put("portal.password", System.getProperty("portal.password"));
+        if (System.getProperties().containsKey(PORTAL_PASSWORD)) {
+            props.put(PORTAL_PASSWORD, System.getProperty(PORTAL_PASSWORD));
         }
 
         return props;
@@ -130,14 +135,37 @@ public class Configuration {
     }
 
     public String getWebUrl() {
-        return properties.getProperty("portal.url", "http://127.0.0.1:8080");
+        return properties.getProperty(PORTAL_URL, "http://127.0.0.1:8080");
     }
 
     public String getWebGetPassword() {
-        return properties.getProperty("portal.password", "my-password");
+        return properties.getProperty(PORTAL_PASSWORD, "my-password");
     }
 
     public String getUrlRevokedTokens() {
-        return getWebUrl() + "/internal/revoked_tokens/" + getWebGetPassword();
+        return generatePortalUrl(getWebUrl(), getWebGetPassword(), PORTAL_REVOKED_TOKENS_PATH);
     }
+
+    public static String generatePortalUrl(String url, String password, String path) {
+		if (url == null || url.isEmpty()) {
+			return null;
+		}
+
+		if (password == null || password.isEmpty()) {
+			return null;
+		}
+
+		StringBuilder sb = new StringBuilder();
+		if (!url.startsWith("http://") && !url.startsWith("https://")) {
+			sb.append("http://");
+		}
+		sb.append(url);
+		if (!url.endsWith("/")) {
+			sb.append("/");
+		}
+		sb.append(path);
+		sb.append("/");
+		sb.append(password);
+		return sb.toString();
+	}
 }
