@@ -1,6 +1,8 @@
 package com.migratorydata.authorization.hub.common;
 
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -70,4 +72,35 @@ public class CommonUtils {
 
         return null;
     }
+
+    public static JwtParser createJwtParser(String secret) {
+        Key secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        JwtParser jwtVerifyParser = Jwts.parser().setSigningKey(secretKey).build();
+        return jwtVerifyParser;
+    }
+
+    public static Claims getClaimsWithoutVerification(String token) {
+        final Claims[] claims_ = {null};
+        SigningKeyResolver signingKeyResolver = new SigningKeyResolverAdapter() {
+            Claims claims;
+            @Override
+            public Key resolveSigningKey(JwsHeader header, Claims claims) {
+                // Examine header and claims
+                claims_[0] = claims;
+                return null; // will throw exception, can be caught in caller
+            }
+        };
+
+        try {
+            return Jwts.parser()
+                    .setSigningKeyResolver(signingKeyResolver)
+                    .build()
+                    .parseClaimsJwt(token)
+                    .getPayload();
+        } catch (Exception e) {
+            // no signing key on client. We trust that this JWT came from the server and has been verified there
+        }
+        return claims_[0];
+    }
+
 }

@@ -27,7 +27,12 @@ public class Configuration {
 
     public static final String PORTAL_URL = "portal.url";
     public static final String PORTAL_PASSWORD = "portal.password";
+    public static final String PORTAL_SERVER_ID = "portal.server_id";
+    public static final String PORTAL_CLUSTER_ID = "portal.cluster_id";
+
     public static final String PORTAL_REVOKED_TOKENS_PATH = "internal/revoked_tokens";
+
+    public static final String PORTAL_JWT_SECRET_KEYS_PATH = "internal/jwt_secret_keys";
 
     private final Properties properties;
 
@@ -87,6 +92,12 @@ public class Configuration {
         if (System.getProperties().containsKey(PORTAL_PASSWORD)) {
             props.put(PORTAL_PASSWORD, System.getProperty(PORTAL_PASSWORD));
         }
+        if (System.getProperties().containsKey(PORTAL_CLUSTER_ID)) {
+            props.put(PORTAL_CLUSTER_ID, System.getProperty(PORTAL_CLUSTER_ID));
+        }
+        if (System.getProperties().containsKey(PORTAL_SERVER_ID)) {
+            props.put(PORTAL_SERVER_ID, System.getProperty(PORTAL_SERVER_ID));
+        }
 
         return props;
     }
@@ -144,6 +155,18 @@ public class Configuration {
 
     public String getUrlRevokedTokens() {
         return generatePortalUrl(getWebUrl(), getWebGetPassword(), PORTAL_REVOKED_TOKENS_PATH);
+    }
+
+    public String getUrlJwtSecretKeys() {
+        return generatePortalUrl(getWebUrl(), getWebGetPassword(), PORTAL_JWT_SECRET_KEYS_PATH) + "/" + getPortalClusterId();
+    }
+
+    public String getPortalServerId() {
+        return properties.getProperty(PORTAL_SERVER_ID, "default-server-id");
+    }
+
+    public String getPortalClusterId() {
+        return properties.getProperty(PORTAL_CLUSTER_ID, "default-cluster-id");
     }
 
     public static String generatePortalUrl(String url, String password, String path) {

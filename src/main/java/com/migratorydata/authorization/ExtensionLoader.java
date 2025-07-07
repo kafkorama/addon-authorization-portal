@@ -12,7 +12,7 @@ public class ExtensionLoader implements MigratoryDataAuthorizationListener {
     public ExtensionLoader() {
         Configuration conf = Configuration.getConfiguration();
 
-        authorizationListener = new HubAuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtVerifyParser(), conf.getUrlRevokedTokens());
+        authorizationListener = new HubAuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtVerifyParser(), conf.getUrlRevokedTokens(), conf.getUrlJwtSecretKeys());
     }
 
     @Override

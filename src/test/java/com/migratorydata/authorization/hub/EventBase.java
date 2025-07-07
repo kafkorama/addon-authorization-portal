@@ -10,7 +10,7 @@ public class EventBase {
     protected void initialize() {
         Configuration conf = Configuration.getConfiguration();
 
-        authorizationListener = new HubAuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtVerifyParser(), conf.getUrlRevokedTokens());
+        authorizationListener = new HubAuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtVerifyParser(), conf.getUrlRevokedTokens(), conf.getUrlJwtSecretKeys());
     }
 
 }
