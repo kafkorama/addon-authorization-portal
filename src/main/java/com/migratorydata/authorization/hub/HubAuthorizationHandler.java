@@ -9,6 +9,8 @@ import com.migratorydata.extensions.authorization.v2.MigratoryDataAuthorizationL
 import com.migratorydata.extensions.authorization.v2.client.*;
 import io.jsonwebtoken.JwtParser;
 import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,19 +32,50 @@ public class HubAuthorizationHandler implements MigratoryDataAuthorizationListen
     private final TokenExpirationHandler tokenExpirationHandler;
     private JwtParser jwtVerifyParser;
 
-    private final String urlRevokedTokens;
+    private Map<String, JwtParser> jwtVerifyParsers = new HashMap<>(); // uuid to JwtParser
 
-    public HubAuthorizationHandler(long millisBeforeRenewal, JwtParser jwtVerifyParser, String urlRevokedTokens) {
+    private final String urlRevokedTokens;
+    private final String urlJwtSecrets;
+
+    public HubAuthorizationHandler(long millisBeforeRenewal, JwtParser jwtVerifyParser, String urlRevokedTokens, String urlJwtSecrets) {
 
         this.tokenExpirationHandler = new TokenExpirationHandler(millisBeforeRenewal);
 
         this.jwtVerifyParser = jwtVerifyParser;
         this.urlRevokedTokens = urlRevokedTokens;
+        this.urlJwtSecrets = urlJwtSecrets;
 
         executor.scheduleAtFixedRate(() -> {
             // load revoked tokens from api hub
             offer(this::updateRevokedTokens);
+            offer(this::updateJwtSecrets);
         }, 5, 60, TimeUnit.SECONDS);
+    }
+
+    private void updateJwtSecrets() {
+        JSONArray jwtTokensJson = CommonUtils.getRequest(urlJwtSecrets);
+
+        if (jwtTokensJson == null) {
+            return;
+        }
+
+        //System.out.println(jwtTokensJson.toString());
+
+        if (jwtTokensJson.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < jwtTokensJson.length(); i++) {
+            JSONObject jwtToken = jwtTokensJson.getJSONObject(i);
+            String uuid = jwtToken.getString("uuid");
+            String secretKey = jwtToken.getString("secret");
+
+            if (jwtVerifyParsers.containsKey(uuid)) {
+                continue; // already exists
+            }
+            JwtParser jwtParser = CommonUtils.createJwtParser(secretKey);
+            jwtVerifyParsers.put(uuid, jwtParser);
+        }
     }
 
     private void updateRevokedTokens() {
@@ -65,7 +98,21 @@ public class HubAuthorizationHandler implements MigratoryDataAuthorizationListen
 
     @Override
     public void onClientConnect(EventConnect eventConnect) {
+
+        if (eventConnect.getClient().getToken() == null || eventConnect.getClient().getToken().isEmpty()) {
+            eventConnect.authorize(false, TOKEN_INVALID.getStatus());
+            return; // no token provided
+        }
+
         Token token = new Token(eventConnect.getClient().getToken());
+
+        JwtParser jwtVerifyParser = this.jwtVerifyParser;
+
+        String jwtUuid = (String) CommonUtils.getClaimsWithoutVerification(eventConnect.getClient().getToken()).get("secret_id");
+        if (jwtUuid != null && jwtVerifyParsers.containsKey(jwtUuid)) {
+            jwtVerifyParser = jwtVerifyParsers.get(jwtUuid);
+        }
+
         if (token.parseToken(jwtVerifyParser)) {
             Session session = new Session(eventConnect.getClient(), token);
 
@@ -91,7 +138,21 @@ public class HubAuthorizationHandler implements MigratoryDataAuthorizationListen
 
         // check token
         // check same app
+
+        if (eventUpdateToken.getClient().getToken() == null || eventUpdateToken.getClient().getToken().isEmpty()) {
+            eventUpdateToken.getClient().sendStatusNotification(TOKEN_INVALID);
+            return; // no token provided
+        }
+
         Token token = new Token(eventUpdateToken.getClient().getToken());
+
+        JwtParser jwtVerifyParser = this.jwtVerifyParser;
+
+        String jwtUuid = (String) CommonUtils.getClaimsWithoutVerification(eventUpdateToken.getClient().getToken()).get("secret_id");
+        if (jwtUuid != null && jwtVerifyParsers.containsKey(jwtUuid)) {
+            jwtVerifyParser = jwtVerifyParsers.get(jwtUuid);
+        }
+
         if (token.parseToken(jwtVerifyParser)) {
             Session session = new Session(eventUpdateToken.getClient(), token);
             tokenExpirationHandler.add(session);
