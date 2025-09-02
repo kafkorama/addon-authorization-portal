@@ -25,9 +25,9 @@ public class Configuration {
     public static final String SIGNATURE_HMAC_SECRET = "signature.hmac.secret";
     public static final String SIGNATURE_RSA_PUBLIC_KEY_PATH = "signature.rsa.publicKeyPath";
 
-    public static final String PORTAL_URL = "portal.url";
-    public static final String PORTAL_PASSWORD = "portal.password";
-    public static final String PORTAL_SERVER_ID = "portal.server_id";
+    public static final String PORTAL_URL = "com.migratorydata.portal.url";
+    public static final String PORTAL_PASSWORD = "com.migratorydata.portal.password";
+    public static final String NODE_NAME = "com.migratorydata.nodename";
 
     public static final String PORTAL_REVOKED_TOKENS_PATH = "internal/revoked_tokens";
 
@@ -91,8 +91,8 @@ public class Configuration {
         if (System.getProperties().containsKey(PORTAL_PASSWORD)) {
             props.put(PORTAL_PASSWORD, System.getProperty(PORTAL_PASSWORD));
         }
-        if (System.getProperties().containsKey(PORTAL_SERVER_ID)) {
-            props.put(PORTAL_SERVER_ID, System.getProperty(PORTAL_SERVER_ID));
+        if (System.getProperties().containsKey(NODE_NAME)) {
+            props.put(NODE_NAME, System.getProperty(NODE_NAME));
         }
 
         return props;
@@ -157,8 +157,8 @@ public class Configuration {
         return generatePortalUrl(getWebUrl(), getWebGetPassword(), PORTAL_JWT_SECRET_KEYS_PATH);
     }
 
-    public String getPortalServerId() {
-        return properties.getProperty(PORTAL_SERVER_ID, "default-server-id");
+    public String getNodeName() {
+        return properties.getProperty(NODE_NAME, "gw-localhost-8800");
     }
 
     public static String generatePortalUrl(String url, String password, String path) {

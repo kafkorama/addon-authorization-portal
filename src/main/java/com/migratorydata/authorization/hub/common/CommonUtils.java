@@ -52,7 +52,7 @@ public class CommonUtils {
                 bytesRead = bufferedInputStream.read(buffer);
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.out.println("Failed Authorization read inputStream request to url, message: " + ex.getMessage());
         }
         return builder.toString();
     }
@@ -67,7 +67,7 @@ public class CommonUtils {
             inputStream.close();
             return result;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Failed GET json request to url: " + urlPath + ", message: " + e.getMessage());
         }
 
         return null;
