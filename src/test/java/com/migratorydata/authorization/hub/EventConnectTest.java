@@ -7,8 +7,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.migratorydata.authorization.hub.HubAuthorizationHandler.TOKEN_EXPIRED;
-import static com.migratorydata.authorization.hub.HubAuthorizationHandler.TOKEN_INVALID;
+import static com.migratorydata.authorization.AuthorizationHandler.TOKEN_EXPIRED;
+import static com.migratorydata.authorization.AuthorizationHandler.TOKEN_INVALID;
 import static com.migratorydata.authorization.token.SessionOrderTest.generateToken;
 
 public class EventConnectTest extends EventBase {

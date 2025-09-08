@@ -1,6 +1,6 @@
 package com.migratorydata.authorization.hub;
 
-import com.migratorydata.authorization.common.config.Util;
+import com.migratorydata.authorization.token.Token;
 import com.migratorydata.authorization.helper.ClientCredentials;
 import com.migratorydata.authorization.helper.EventConnect;
 import com.migratorydata.authorization.helper.EventSubscribe;
@@ -23,10 +23,10 @@ public class EventSubscribeTest extends EventBase {
     private String validToken = generateToken(100);
 
     // subject /s/s has permission for publish
-    private String validTokenWithPublishPermission = generateToken(100, subject, Util.PUB_FIELD);
+    private String validTokenWithPublishPermission = generateToken(100, subject, Token.PUB_FIELD);
 
     // subject /s/s has permission for subscribe
-    private String validTokenWithSubscribePermission = generateToken(100, subject, Util.SUB_FIELD);
+    private String validTokenWithSubscribePermission = generateToken(100, subject, Token.SUB_FIELD);
 
     @Before
     public void onStart() {

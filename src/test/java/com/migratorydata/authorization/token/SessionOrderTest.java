@@ -1,9 +1,6 @@
 package com.migratorydata.authorization.token;
 
-import com.migratorydata.authorization.common.client.Session;
-import com.migratorydata.authorization.common.token.Token;
-import com.migratorydata.authorization.common.token.TokenExpirationHandler;
-import com.migratorydata.authorization.common.config.Util;
+import com.migratorydata.authorization.client.Session;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -23,7 +20,7 @@ public class SessionOrderTest {
 
     @Test
     public void test_expiration_date_order_comparator_reverse() {
-        TreeSet<Session> sessions = new TreeSet<>(new TokenExpirationHandler.SessionOrderByExpirationTime());
+        TreeSet<Session> sessions = new TreeSet<>(Session.ORDER_BY_TOKEN_EXPIRATION_TIME);
 
         Token t1 = new Token(generateToken(100));
         t1.parseToken(jwtVerifyParser);
@@ -55,7 +52,7 @@ public class SessionOrderTest {
 
     @Test
     public void test_expiration_date_order_comparator_random() {
-        TreeSet<Session> sessions = new TreeSet<>(new TokenExpirationHandler.SessionOrderByExpirationTime());
+        TreeSet<Session> sessions = new TreeSet<>(Session.ORDER_BY_TOKEN_EXPIRATION_TIME);
 
         Token t1 = new Token(generateToken(100));
         t1.parseToken(jwtVerifyParser);
@@ -87,7 +84,7 @@ public class SessionOrderTest {
 
     @Test
     public void test_entered_renew_grace_period_timestamp_comparator_reverse() throws InterruptedException {
-        TreeSet<Session> disconnectSessions = new TreeSet<>(new TokenExpirationHandler.SessionOrderByTokenRenewalTimestamp());
+        TreeSet<Session> disconnectSessions = new TreeSet<>(Session.ORDER_BY_TOKEN_RENEWAL_TIMESTAMP);
 
         Session s1 = new Session(null, null);
         Session s2 = new Session(null, null);
@@ -109,14 +106,14 @@ public class SessionOrderTest {
         Session testSession = it.next();
         while(it.hasNext()) {
             Session currentSession = it.next();
-            Assert.assertTrue(testSession.getTokenRenewalTimestamp() < currentSession.getTokenRenewalTimestamp());
+            Assert.assertTrue(testSession.getTokenRenewalStartTimestamp() < currentSession.getTokenRenewalStartTimestamp());
 
             testSession = currentSession;
         }
     }
 
     public static String generateToken(int ttl) {
-        return generateToken(ttl, "/s/s", Util.ALL_FIELD);
+        return generateToken(ttl, "/s/s", Token.ALL_FIELD);
     }
 
     public static String generateToken(int ttl, String subject, String field) {
@@ -126,7 +123,7 @@ public class SessionOrderTest {
         String jti =  UUID.randomUUID().toString().substring(0, 6);
         String jws = Jwts.builder()
                 .setId(jti)
-                .claim(Util.PERMISSIONS_FIELD, permissions)
+                .claim(Token.PERMISSIONS_FIELD, permissions)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + (ttl * 1000)))
                 .signWith(signKey).compact();

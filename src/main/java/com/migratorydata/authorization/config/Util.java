@@ -1,10 +1,9 @@
-package com.migratorydata.authorization.hub.common;
+package com.migratorydata.authorization.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -12,34 +11,11 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.Key;
-import java.util.Date;
-import java.util.UUID;
+import java.util.regex.Pattern;
 
-public class CommonUtils {
+public class Util {
 
-
-    public static String generateRandomUuid(int length) {
-        return UUID.randomUUID().toString().substring(0, length);
-    }
-
-    public static String generateToken(String apiId, JSONObject permissions, Key secretKey) {
-        String jti = CommonUtils.generateRandomUuid(6);
-        return Jwts.builder()
-                .setId(jti)
-                .claim("permissions", permissions.toMap())
-                .claim("app", apiId)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 31104000000L)) // one year
-                .signWith(secretKey).compact();
-    }
-
-    public static JSONObject createAllPermissions(String endpoint) {
-        JSONObject jsonObject = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-        jsonArray.put(endpoint);
-        jsonObject.put("all", jsonArray);
-        return jsonObject;
-    }
+    private static final Pattern subjectSyntax = Pattern.compile("^\\/([^\\/]+\\/)*([^\\/]+|\\*)$");
 
     public static String inputStreamToString(InputStream inputStream) {
         final int bufferSize = 8 * 1024;
@@ -57,7 +33,7 @@ public class CommonUtils {
         return builder.toString();
     }
 
-    public static JSONArray getRequest(String urlPath) {
+    public static JSONArray fetchFromUrl(String urlPath) {
         try {
             URL url = new URL(urlPath);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -73,10 +49,10 @@ public class CommonUtils {
         return null;
     }
 
-    public static JwtParser createJwtParser(String secret) {
-        Key secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
-        JwtParser jwtVerifyParser = Jwts.parser().setSigningKey(secretKey).build();
-        return jwtVerifyParser;
+    public static JwtParser createJwtParser(String signingKey) {
+        Key secret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(signingKey));
+        JwtParser jwtParser = Jwts.parser().setSigningKey(secret).build();
+        return jwtParser;
     }
 
     public static Claims getClaimsWithoutVerification(String token) {
@@ -103,4 +79,16 @@ public class CommonUtils {
         return claims_[0];
     }
 
+    public static boolean isSubjectValid(String subject) {
+        String sbj = subject;
+        int index = subject.indexOf("/", 1);
+        if (index == -1) {
+            sbj = subject.substring(1);
+            if ("*".equals(sbj)) {
+                return true;
+            }
+        }
+
+        return subjectSyntax.matcher(sbj).matches();
+    }
 }

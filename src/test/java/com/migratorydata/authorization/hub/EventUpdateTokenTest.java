@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.migratorydata.authorization.hub.HubAuthorizationHandler.*;
+import static com.migratorydata.authorization.AuthorizationHandler.*;
 import static com.migratorydata.authorization.token.SessionOrderTest.generateToken;
 
 public class EventUpdateTokenTest extends EventBase {

@@ -15,7 +15,7 @@ public class ParseWithoutSecretTest {
             Claims claims = parseJwtWithoutSignatureVerification(token);
 
             // Access the JWT claims
-            System.out.println("Subject: " + claims.get("secret_id"));
+            System.out.println("Subject: " + claims.get(Token.SIGNING_KEY_ID_FIELD));
             System.out.println("Issuer: " + claims.getIssuer());
             System.out.println("Expiration: " + claims.getExpiration());
 

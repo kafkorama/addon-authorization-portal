@@ -1,7 +1,6 @@
 package com.migratorydata.authorization;
 
-import com.migratorydata.authorization.common.config.Configuration;
-import com.migratorydata.authorization.hub.HubAuthorizationHandler;
+import com.migratorydata.authorization.config.Configuration;
 import com.migratorydata.extensions.authorization.v2.MigratoryDataAuthorizationListener;
 import com.migratorydata.extensions.authorization.v2.client.*;
 
@@ -11,8 +10,7 @@ public class ExtensionLoader implements MigratoryDataAuthorizationListener {
 
     public ExtensionLoader() {
         Configuration conf = Configuration.getConfiguration();
-
-        authorizationListener = new HubAuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtVerifyParser(), conf.getUrlRevokedTokens(), conf.getUrlJwtSecrets());
+        authorizationListener = new AuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtParser(), conf.getPortalRevokedTokensUrl(), conf.getPortalSigningKeysUrl());
     }
 
     @Override
