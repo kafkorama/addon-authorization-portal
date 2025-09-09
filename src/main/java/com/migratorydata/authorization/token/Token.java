@@ -51,13 +51,13 @@ public class Token {
             jwsClaims = jwtParser.parseClaimsJws(token);
             permissions = new Permissions((Map<String, List<String>>) jwsClaims.getBody().get(PERMISSIONS_FIELD));
         } catch (MalformedJwtException e) {
-            e.printStackTrace();
+            System.err.println("The token is not a valid JWS structure." + e.getMessage());
             tokenStatus = TOKEN_INVALID;
         } catch (JwtException e) {
-            e.printStackTrace();
+            System.err.println("The token is expired." + e.getMessage());
             tokenStatus = TOKEN_EXPIRED;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("An error occurred while parsing the token." + e.getMessage());
             tokenStatus = TOKEN_INVALID;
         }
         return tokenStatus;

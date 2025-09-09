@@ -7,9 +7,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.migratorydata.authorization.AuthorizationHandler.TOKEN_EXPIRED;
-import static com.migratorydata.authorization.AuthorizationHandler.TOKEN_INVALID;
 import static com.migratorydata.authorization.token.SessionOrderTest.generateToken;
+import static com.migratorydata.authorization.AuthorizationHandler.*;
 
 public class EventConnectTest extends EventBase {
 
@@ -52,7 +51,7 @@ public class EventConnectTest extends EventBase {
     public void test_valid_token() {
         EventConnect eventConnect = new EventConnect(new ClientCredentials(validToken, clientAddress));
         authorizationListener.onClientConnect(eventConnect);
-        Assert.assertTrue(eventConnect.getReason() == "TOKEN_VALID");
+        Assert.assertTrue(eventConnect.getReason() == TOKEN_VALID.getStatus());
     }
 
 }

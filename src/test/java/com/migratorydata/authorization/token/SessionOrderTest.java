@@ -1,6 +1,8 @@
 package com.migratorydata.authorization.token;
 
 import com.migratorydata.authorization.client.Session;
+import com.migratorydata.authorization.helper.ClientCredentials;
+
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -86,9 +88,9 @@ public class SessionOrderTest {
     public void test_entered_renew_grace_period_timestamp_comparator_reverse() throws InterruptedException {
         TreeSet<Session> disconnectSessions = new TreeSet<>(Session.ORDER_BY_TOKEN_RENEWAL_TIMESTAMP);
 
-        Session s1 = new Session(null, null);
-        Session s2 = new Session(null, null);
-        Session s3 = new Session(null, null);
+        Session s1 = new Session(new ClientCredentials("token", "secret"), null);
+        Session s2 = new Session(new ClientCredentials("token", "secret"), null);
+        Session s3 = new Session(new ClientCredentials("token", "secret"), null);
 
         s3.startTokenRenewal();
         Thread.sleep(200);

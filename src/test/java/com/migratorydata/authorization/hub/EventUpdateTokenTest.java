@@ -58,7 +58,7 @@ public class EventUpdateTokenTest extends EventBase {
         EventConnect connectRequest = new EventConnect(new ClientCredentials(validToken, clientAddress));
         authorizationListener.onClientConnect(connectRequest);
 
-        Assert.assertTrue(connectRequest.getReason() == "TOKEN_VALID");
+        Assert.assertTrue(connectRequest.getReason() == TOKEN_VALID.getStatus());
 
         ClientCredentials clientCredentials = new ClientCredentials(validToken, clientAddress);
         EventUpdate updateRequest = new EventUpdate(clientCredentials);
