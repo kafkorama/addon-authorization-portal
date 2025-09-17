@@ -232,7 +232,7 @@ public class SubjectPermissionTypeTest {
 
     @Test
     public void test_symbol_last() {
-        root.setPermission("/a/b/(s)", Permissions.PermissionType.PUB);
+        root.setPermission("/a/b/<s>", Permissions.PermissionType.PUB);
 
         Permissions.PermissionType permission = root.getPermission("/a/b");
         Assert.assertTrue(permission == Permissions.PermissionType.NONE );
@@ -246,7 +246,7 @@ public class SubjectPermissionTypeTest {
 
     @Test
     public void test_symbol_middle() {
-        root.setPermission("/a/(s)/b", Permissions.PermissionType.PUB);
+        root.setPermission("/a/<s>/b", Permissions.PermissionType.PUB);
         root.setPermission("/a/c/b", Permissions.PermissionType.SUB);
         root.setPermission("/a/c/d", Permissions.PermissionType.ALL);
 
@@ -271,8 +271,8 @@ public class SubjectPermissionTypeTest {
 
     @Test
     public void test_multiple_symbols_middle() {
-        root.setPermission("/a/(s)/b", Permissions.PermissionType.ALL);
-        root.setPermission("/a/(s)/(s)/b", Permissions.PermissionType.SUB);
+        root.setPermission("/a/<s>/b", Permissions.PermissionType.ALL);
+        root.setPermission("/a/<s>/<s>/b", Permissions.PermissionType.SUB);
         root.setPermission("/a/c/b", Permissions.PermissionType.PUB);
         root.setPermission("/a/c/d", Permissions.PermissionType.PUB);
 
@@ -305,9 +305,9 @@ public class SubjectPermissionTypeTest {
 
     @Test
     public void test_multiple_symbols_middle_wildcard() {
-        root.setPermission("/a/(s)/b/(s)", Permissions.PermissionType.PUB);
-        root.setPermission("/a/(s)/b", Permissions.PermissionType.ALL);
-        root.setPermission("/a/(s)/(s)/b", Permissions.PermissionType.SUB);
+        root.setPermission("/a/<s>/b/<s>", Permissions.PermissionType.PUB);
+        root.setPermission("/a/<s>/b", Permissions.PermissionType.ALL);
+        root.setPermission("/a/<s>/<s>/b", Permissions.PermissionType.SUB);
         root.setPermission("/a/c/b", Permissions.PermissionType.PUB);
         root.setPermission("/a/c/d", Permissions.PermissionType.PUB);
         root.setPermission("/a/*", Permissions.PermissionType.SUB);
@@ -342,9 +342,9 @@ public class SubjectPermissionTypeTest {
         root.setPermission("/a/*", Permissions.PermissionType.SUB);
         root.setPermission("/a/c/d", Permissions.PermissionType.PUB);
         root.setPermission("/a/c/b", Permissions.PermissionType.PUB);
-        root.setPermission("/a/(s)/(s)/b", Permissions.PermissionType.SUB);
-        root.setPermission("/a/(s)/b", Permissions.PermissionType.ALL);
-        root.setPermission("/a/(s)/b/(s)", Permissions.PermissionType.PUB);
+        root.setPermission("/a/<s>/<s>/b", Permissions.PermissionType.SUB);
+        root.setPermission("/a/<s>/b", Permissions.PermissionType.ALL);
+        root.setPermission("/a/<s>/b/<s>", Permissions.PermissionType.PUB);
 
         System.out.println(root);
 
@@ -372,8 +372,74 @@ public class SubjectPermissionTypeTest {
     }
 
     @Test
+    public void test_combined() {
+        root.setPermission("/a/<s>/b/*", Permissions.PermissionType.ALL);
+
+        System.out.println(root);
+
+        Permissions.PermissionType permission = root.getPermission("/a/b");
+        Assert.assertTrue(permission == Permissions.PermissionType.NONE );
+
+        permission = root.getPermission("/a/b/c");
+        Assert.assertTrue(permission == Permissions.PermissionType.NONE );
+
+        permission = root.getPermission("/a/c/b");
+        Assert.assertTrue(permission == Permissions.PermissionType.ALL );
+
+        permission = root.getPermission("/a/x/b");
+        Assert.assertTrue(permission == Permissions.PermissionType.ALL );
+
+        permission = root.getPermission("/a/c/b/d");
+        Assert.assertTrue(permission == Permissions.PermissionType.ALL );
+    }
+
+    @Test
+    public void test_combined_2() {
+        root.setPermission("/a/*/b/<s>", Permissions.PermissionType.ALL);
+
+        System.out.println(root);
+
+        Permissions.PermissionType permission = root.getPermission("/a/b");
+        Assert.assertTrue(permission == Permissions.PermissionType.ALL );
+
+        permission = root.getPermission("/a/b/c");
+        Assert.assertTrue(permission == Permissions.PermissionType.ALL );
+
+        permission = root.getPermission("/a/c/b");
+        Assert.assertTrue(permission == Permissions.PermissionType.ALL );
+
+        permission = root.getPermission("/a/x/b");
+        Assert.assertTrue(permission == Permissions.PermissionType.ALL );
+
+        permission = root.getPermission("/a/c/b/d");
+        Assert.assertTrue(permission == Permissions.PermissionType.ALL );
+    }
+
+    @Test
+    public void test_combined_3() {
+        root.setPermission("/a/b/<s>/a", Permissions.PermissionType.ALL);
+
+        System.out.println(root);
+
+        Permissions.PermissionType permission = root.getPermission("/a/b");
+        Assert.assertTrue(permission == Permissions.PermissionType.NONE );
+
+        permission = root.getPermission("/a/b/c");
+        Assert.assertTrue(permission == Permissions.PermissionType.NONE );
+
+        permission = root.getPermission("/a/c/b");
+        Assert.assertTrue(permission == Permissions.PermissionType.NONE );
+
+        permission = root.getPermission("/a/b/c/a");
+        Assert.assertTrue(permission == Permissions.PermissionType.ALL );
+
+        permission = root.getPermission("/a/b/c/d");
+        Assert.assertTrue(permission == Permissions.PermissionType.NONE );
+    }
+
+    @Test
     public void testSymbolRegex() {
-        Assert.assertTrue("(a)".matches(SYMBOL_REGEX));
-        Assert.assertFalse("(a".matches(SYMBOL_REGEX));
+        Assert.assertTrue("<a>".matches(SYMBOL_REGEX));
+        Assert.assertFalse("<a".matches(SYMBOL_REGEX));
     }
 }
