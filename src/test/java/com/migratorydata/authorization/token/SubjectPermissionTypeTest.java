@@ -440,6 +440,11 @@ public class SubjectPermissionTypeTest {
     @Test
     public void testSymbolRegex() {
         Assert.assertTrue("<a>".matches(SYMBOL_REGEX));
+        Assert.assertTrue("<aaa>".matches(SYMBOL_REGEX));
+        Assert.assertTrue("<aaa-b_c>".matches(SYMBOL_REGEX));
+        Assert.assertTrue("<aaa-b_c?!Z>".matches(SYMBOL_REGEX));
         Assert.assertFalse("<a".matches(SYMBOL_REGEX));
+        Assert.assertFalse("a".matches(SYMBOL_REGEX));
+        Assert.assertFalse("adbd-e-q_?".matches(SYMBOL_REGEX));
     }
 }
