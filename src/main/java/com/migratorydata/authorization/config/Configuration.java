@@ -43,8 +43,8 @@ public class Configuration {
     public static final String PORTAL_URL_DEFAULT = "http://127.0.0.1:8080";
     public static final String PORTAL_PASSWORD = "com.migratorydata.portal.password";
     public static final String PORTAL_PASSWORD_DEFAULT = "my-password";
-    public static final String PORTAL_REVOKED_TOKENS_PATH_DEFAULT = "internal/revoked_tokens";
-    public static final String PORTAL_SIGNING_KEYS_PATH_DEFAULT = "internal/secrets";
+    public static final String PORTAL_REVOKED_TOKENS_PATH_DEFAULT = "api/v1/gateway/revoked_tokens";
+    public static final String PORTAL_SIGNING_KEYS_PATH_DEFAULT = "api/v1/gateway/sign_keys";
 
     private final Properties properties;
 

@@ -52,7 +52,7 @@ public class AuthorizationHandler implements MigratoryDataAuthorizationListener 
         for (int i = 0; i < signingKeys.length(); i++) {
             JSONObject jwtToken = signingKeys.getJSONObject(i);
             String signingKeyId = jwtToken.getString("uuid");
-            String signingKey = jwtToken.getString("secret");
+            String signingKey = jwtToken.getString("signKey");
 
             if (jwtParsers.containsKey(signingKeyId)) {
                 continue; // signing key already exists
