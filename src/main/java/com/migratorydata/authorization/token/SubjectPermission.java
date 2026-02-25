@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SubjectPermission {
-    public static final String SYMBOL_REGEX = "^<[\\w\\s\\S]+>$";
-    public static final String SYMBOL = "<s>";
+    public static final String SYMBOL_REGEX = "^\\{[\\w\\s\\S]+\\}$";
+    public static final String SYMBOL = "{s}";
 
     private final Map<String, SubjectPermission> descendants = new HashMap<>();
 
