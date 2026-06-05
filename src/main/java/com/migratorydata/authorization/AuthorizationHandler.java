@@ -30,12 +30,14 @@ public class AuthorizationHandler implements MigratoryDataAuthorizationListener 
     private final Map<String, Session> sessionsByIpAddress = new HashMap<>();
     private Map<String, JwtParser> jwtParsers = new HashMap<>(); // uuid to JwtParser
     private final TokenExpirationHandler tokenExpirationHandler;
+    private final String apiKey;
 
-    public AuthorizationHandler(long millisBeforeRenewal, JwtParser jwtParser, String urlRevokedTokens, String urlSigningKeys) {
+    public AuthorizationHandler(long millisBeforeRenewal, JwtParser jwtParser, String urlRevokedTokens, String urlSigningKeys, String apiKey) {
         this.tokenExpirationHandler = new TokenExpirationHandler(millisBeforeRenewal);
         this.jwtParser = jwtParser;
         this.urlRevokedTokens = urlRevokedTokens;
         this.urlSigningKeys = urlSigningKeys;
+        this.apiKey = apiKey;
 
         executor.scheduleAtFixedRate(() -> {
             // load revoked tokens from api hub
@@ -45,7 +47,7 @@ public class AuthorizationHandler implements MigratoryDataAuthorizationListener 
     }
 
     private void updateSigningKeys() {
-        JSONArray signingKeys = Util.fetchFromUrl(urlSigningKeys);
+        JSONArray signingKeys = Util.fetchFromUrl(urlSigningKeys, apiKey);
         if (signingKeys == null || signingKeys.isEmpty()) {
             return;
         }
@@ -63,7 +65,7 @@ public class AuthorizationHandler implements MigratoryDataAuthorizationListener 
     }
 
     private void updateRevokedTokens() {
-        JSONArray jwtTokens = Util.fetchFromUrl(urlRevokedTokens); // get the list of the JWT IDs of the revoked tokens
+        JSONArray jwtTokens = Util.fetchFromUrl(urlRevokedTokens, apiKey); // get the list of the JWT IDs of the revoked tokens
         if (jwtTokens == null || jwtTokens.isEmpty()) {
             return;
         }

@@ -52,11 +52,12 @@ public class Util {
         return builder.toString();
     }
 
-    public static JSONArray fetchFromUrl(String urlPath) {
+    public static JSONArray fetchFromUrl(String urlPath, String apiKey) {
         try {
             URL url = new URL(urlPath);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
+            con.setRequestProperty("Authorization", "Bearer " + apiKey);
             InputStream inputStream = con.getInputStream();
             JSONArray result = new JSONArray(inputStreamToString(inputStream));
             inputStream.close();

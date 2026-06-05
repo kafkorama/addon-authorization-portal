@@ -10,7 +10,7 @@ public class ExtensionLoader implements MigratoryDataAuthorizationListener {
 
     public ExtensionLoader() {
         Configuration conf = Configuration.getConfiguration();
-        authorizationListener = new AuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtParser(), conf.getPortalRevokedTokensUrl(), conf.getPortalSigningKeysUrl());
+        authorizationListener = new AuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtParser(), conf.getPortalRevokedTokensUrl(), conf.getPortalSigningKeysUrl(), conf.getPortalApiKey());
     }
 
     @Override

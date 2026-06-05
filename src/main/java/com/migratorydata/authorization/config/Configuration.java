@@ -151,24 +151,20 @@ public class Configuration {
         return properties.getProperty(PORTAL_URL, PORTAL_URL_DEFAULT);
     }
 
-    public String getPortalPassword() {
+    public String getPortalApiKey() {
         return properties.getProperty(PORTAL_PASSWORD, PORTAL_PASSWORD_DEFAULT);
     }
 
     public String getPortalRevokedTokensUrl() {
-        return getPortalPathUrl(getPortalUrl(), getPortalPassword(), PORTAL_REVOKED_TOKENS_PATH_DEFAULT);
+        return getPortalPathUrl(getPortalUrl(), PORTAL_REVOKED_TOKENS_PATH_DEFAULT);
     }
 
     public String getPortalSigningKeysUrl() {
-        return getPortalPathUrl(getPortalUrl(), getPortalPassword(), PORTAL_SIGNING_KEYS_PATH_DEFAULT);
+        return getPortalPathUrl(getPortalUrl(), PORTAL_SIGNING_KEYS_PATH_DEFAULT);
     }
 
-    private static String getPortalPathUrl(String url, String password, String path) {
+    private static String getPortalPathUrl(String url, String path) {
         if (url == null || url.isEmpty()) {
-            return null;
-        }
-
-        if (password == null || password.isEmpty()) {
             return null;
         }
 
@@ -181,8 +177,6 @@ public class Configuration {
             sb.append("/");
         }
         sb.append(path);
-        sb.append("/");
-        sb.append(password);
         return sb.toString();
     }
 }
