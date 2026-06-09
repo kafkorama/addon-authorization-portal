@@ -27,6 +27,10 @@ public class Configuration {
     public static final String RENEW_TOKEN_BEFORE_SECONDS = "renewTokenBeforeSeconds";
     public static final String RENEW_TOKEN_BEFORE_SECONDS_DEFAULT = "60";
 
+
+    public static final String PORTAL_REQUEST_INTERVAL_SECONDS = "portalRequestIntervalSeconds";
+    public static final String PORTAL_REQUEST_INTERVAL_SECONDS_DEFAULT = "10";
+
     // There are two methods available for signing/validating JWT tokens:
     // - HMAC using a shared symmetric key, and
     // - RSA using a pair of asymmetric public/private keys
@@ -41,8 +45,10 @@ public class Configuration {
     // The URL and password of the Kafkorama Portal, required to poll for signing keys and revoked JWT tokens.
     public static final String PORTAL_URL = "com.migratorydata.portal.url";
     public static final String PORTAL_URL_DEFAULT = "http://127.0.0.1:8080";
+
     public static final String PORTAL_PASSWORD = "com.migratorydata.portal.password";
     public static final String PORTAL_PASSWORD_DEFAULT = "my-password";
+    
     public static final String PORTAL_REVOKED_TOKENS_PATH_DEFAULT = "api/v1/gateway/revoked_tokens";
     public static final String PORTAL_SIGNING_KEYS_PATH_DEFAULT = "api/v1/gateway/sign_keys";
 
@@ -102,7 +108,9 @@ public class Configuration {
         if (System.getProperties().containsKey(PORTAL_PASSWORD)) {
             props.put(PORTAL_PASSWORD, System.getProperty(PORTAL_PASSWORD, PORTAL_PASSWORD_DEFAULT));
         }
-
+        if (System.getProperties().containsKey(PORTAL_REQUEST_INTERVAL_SECONDS)) {
+            props.put(PORTAL_REQUEST_INTERVAL_SECONDS, System.getProperty(PORTAL_REQUEST_INTERVAL_SECONDS, PORTAL_REQUEST_INTERVAL_SECONDS_DEFAULT));
+        }
         return props;
     }
 
@@ -161,6 +169,10 @@ public class Configuration {
 
     public String getPortalSigningKeysUrl() {
         return getPortalPathUrl(getPortalUrl(), PORTAL_SIGNING_KEYS_PATH_DEFAULT);
+    }
+
+    public int getPortalRequestIntervalSeconds() {
+        return Integer.parseInt(properties.getProperty(PORTAL_REQUEST_INTERVAL_SECONDS, PORTAL_REQUEST_INTERVAL_SECONDS_DEFAULT));
     }
 
     private static String getPortalPathUrl(String url, String path) {

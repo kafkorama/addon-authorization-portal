@@ -32,7 +32,7 @@ public class AuthorizationHandler implements MigratoryDataAuthorizationListener 
     private final TokenExpirationHandler tokenExpirationHandler;
     private final String apiKey;
 
-    public AuthorizationHandler(long millisBeforeRenewal, JwtParser jwtParser, String urlRevokedTokens, String urlSigningKeys, String apiKey) {
+    public AuthorizationHandler(long millisBeforeRenewal, JwtParser jwtParser, String urlRevokedTokens, String urlSigningKeys, String apiKey, int requestIntervalSeconds) {
         this.tokenExpirationHandler = new TokenExpirationHandler(millisBeforeRenewal);
         this.jwtParser = jwtParser;
         this.urlRevokedTokens = urlRevokedTokens;
@@ -43,7 +43,7 @@ public class AuthorizationHandler implements MigratoryDataAuthorizationListener 
             // load revoked tokens from api hub
             offer(this::updateRevokedTokens);
             offer(this::updateSigningKeys);
-        }, 5, 60, TimeUnit.SECONDS);
+        }, 5, requestIntervalSeconds, TimeUnit.SECONDS);
     }
 
     private void updateSigningKeys() {

@@ -11,7 +11,7 @@ public class EventBase {
     protected void initialize() {
         Configuration conf = Configuration.getConfiguration();
 
-        authorizationListener = new AuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtParser(), conf.getPortalRevokedTokensUrl(), conf.getPortalSigningKeysUrl(), conf.getPortalApiKey());
+        authorizationListener = new AuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtParser(), conf.getPortalRevokedTokensUrl(), conf.getPortalSigningKeysUrl(), conf.getPortalApiKey(), conf.getPortalRequestIntervalSeconds());
     }
 
 }
