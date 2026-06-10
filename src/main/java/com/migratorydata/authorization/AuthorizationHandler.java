@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -21,23 +22,26 @@ public class AuthorizationHandler implements MigratoryDataAuthorizationListener 
     public static final StatusNotification TOKEN_INVALID = new StatusNotification("NOTIFY_TOKEN_INVALID", "NOTIFY_TOKEN_INVALID");
     public static final StatusNotification TOKEN_UPDATED = new StatusNotification("NOTIFY_TOKEN_UPDATED", "NOTIFY_TOKEN_UPDATED");
 
-    private JwtParser jwtParser;
     private final String urlRevokedTokens;
     private final String urlSigningKeys;
 
     private Set<String> revokedTokens = new HashSet<>(); // token_id (jti)
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final Map<String, Session> sessionsByIpAddress = new HashMap<>();
-    private Map<String, JwtParser> jwtParsers = new HashMap<>(); // uuid to JwtParser
+    private Map<String, JwtParser> jwtParsers = new ConcurrentHashMap<>(); // signKeyUuid to JwtParser
     private final TokenExpirationHandler tokenExpirationHandler;
     private final String apiKey;
 
-    public AuthorizationHandler(long millisBeforeRenewal, JwtParser jwtParser, String urlRevokedTokens, String urlSigningKeys, String apiKey, int requestIntervalSeconds) {
+    public AuthorizationHandler(long millisBeforeRenewal, String urlRevokedTokens, String urlSigningKeys, String apiKey, int requestIntervalSeconds, Map<String, JwtParser> jwtParsers) {
         this.tokenExpirationHandler = new TokenExpirationHandler(millisBeforeRenewal);
-        this.jwtParser = jwtParser;
         this.urlRevokedTokens = urlRevokedTokens;
         this.urlSigningKeys = urlSigningKeys;
         this.apiKey = apiKey;
+
+        // Copy passed-in parsers safely into your concurrent map
+        if (jwtParsers != null) {
+            this.jwtParsers.putAll(jwtParsers);
+        }
 
         executor.scheduleAtFixedRate(() -> {
             // load revoked tokens from api hub
@@ -51,10 +55,21 @@ public class AuthorizationHandler implements MigratoryDataAuthorizationListener 
         if (signingKeys == null || signingKeys.isEmpty()) {
             return;
         }
+
+        // 1. Create a set to track all IDs received in this batch
+        Set<String> receivedIds = new HashSet<>();  
+
         for (int i = 0; i < signingKeys.length(); i++) {
             JSONObject jwtToken = signingKeys.getJSONObject(i);
             String signingKeyId = jwtToken.getString("uuid");
             String signingKey = jwtToken.getString("signKey");
+
+            // Null/empty safety check for ConcurrentHashMap
+            if (signingKeyId == null || signingKey == null) {
+                continue; 
+            }
+
+            receivedIds.add(signingKeyId);
 
             if (jwtParsers.containsKey(signingKeyId)) {
                 continue; // signing key already exists
@@ -62,6 +77,10 @@ public class AuthorizationHandler implements MigratoryDataAuthorizationListener 
             JwtParser jwtParser = Util.createJwtParser(signingKey);
             jwtParsers.put(signingKeyId, jwtParser);
         }
+
+        // 3. Purge stale keys: Remove everything from the map EXCEPT the received IDs
+        // retainAll() on a ConcurrentHashMap's keySet safely modifies the underlying map.
+        jwtParsers.keySet().retainAll(receivedIds);
     }
 
     private void updateRevokedTokens() {
@@ -82,10 +101,15 @@ public class AuthorizationHandler implements MigratoryDataAuthorizationListener 
             return; // no token provided
         }
 
-        JwtParser jwtParser = this.jwtParser;
+        JwtParser jwtParser = null;
         String signingKeyId = (String) Util.getClaimsWithoutVerification(jwtToken).get(Token.SIGNING_KEY_ID_FIELD);
         if (signingKeyId != null && jwtParsers.containsKey(signingKeyId)) {
             jwtParser = jwtParsers.get(signingKeyId);
+        }
+
+        if (jwtParser == null) {
+            eventConnect.authorize(false, TOKEN_INVALID.getStatus());
+            return; // no valid signing key found for the token
         }
 
         Token token = new Token(jwtToken);
@@ -109,10 +133,15 @@ public class AuthorizationHandler implements MigratoryDataAuthorizationListener 
             return; // no token provided
         }
 
-        JwtParser jwtParser = this.jwtParser;
+        JwtParser jwtParser = null;
         String signingKeyId = (String) Util.getClaimsWithoutVerification(jwtToken).get(Token.SIGNING_KEY_ID_FIELD);
         if (signingKeyId != null && jwtParsers.containsKey(signingKeyId)) {
             jwtParser = jwtParsers.get(signingKeyId);
+        }
+
+        if (jwtParser == null) {
+            eventUpdateToken.getClient().sendStatusNotification(TOKEN_INVALID);
+            return; // no valid signing key found for the token
         }
 
         Token token = new Token(jwtToken);

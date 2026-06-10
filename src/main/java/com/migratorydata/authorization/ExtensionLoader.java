@@ -1,5 +1,7 @@
 package com.migratorydata.authorization;
 
+import java.util.HashMap;
+
 import com.migratorydata.authorization.config.Configuration;
 import com.migratorydata.extensions.authorization.v2.MigratoryDataAuthorizationListener;
 import com.migratorydata.extensions.authorization.v2.client.*;
@@ -10,7 +12,7 @@ public class ExtensionLoader implements MigratoryDataAuthorizationListener {
 
     public ExtensionLoader() {
         Configuration conf = Configuration.getConfiguration();
-        authorizationListener = new AuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getJwtParser(), conf.getPortalRevokedTokensUrl(), conf.getPortalSigningKeysUrl(), conf.getPortalApiKey(), conf.getPortalRequestIntervalSeconds());
+        authorizationListener = new AuthorizationHandler(conf.getMillisBeforeRenewal(), conf.getPortalRevokedTokensUrl(), conf.getPortalSigningKeysUrl(), conf.getPortalApiKey(), conf.getPortalRequestIntervalSeconds(), new HashMap<>()); // Pass an empty map for JWT parsers
     }
 
     @Override

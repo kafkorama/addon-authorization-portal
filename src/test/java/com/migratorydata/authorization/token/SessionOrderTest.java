@@ -126,6 +126,7 @@ public class SessionOrderTest {
         String jws = Jwts.builder()
                 .setId(jti)
                 .claim(Token.PERMISSIONS_FIELD, permissions)
+                .claim(Token.SIGNING_KEY_ID_FIELD, "testKeyId")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + (ttl * 1000)))
                 .signWith(signKey).compact();
